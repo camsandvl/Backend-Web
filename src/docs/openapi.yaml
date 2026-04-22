@@ -1,0 +1,340 @@
+openapi: 3.0.3
+info:
+  title: Series Tracker API
+  description: >
+    REST API for managing a personal series/show tracker.
+    Supports CRUD operations, image upload, pagination, search, and sorting.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://your-deployed-url.com
+    description: Production
+
+tags:
+  - name: Series
+    description: Series management endpoints
+  - name: Ratings
+    description: Rating endpoints
+
+paths:
+
+  /series:
+    get:
+      tags: [Series]
+      summary: List all series
+      description: Returns a paginated, filterable, sortable list of all series.
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Results per page (default 10, max 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: q
+          in: query
+          description: Search by title (case-insensitive partial match)
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Field to sort by
+          schema:
+            type: string
+            enum: [title, genre, status, rating, created_at]
+            default: created_at
+        - name: order
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Paginated list of series
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeriesList'
+
+    post:
+      tags: [Series]
+      summary: Create a new series
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeriesInput'
+      responses:
+        '201':
+          description: Series created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /series/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Series ID
+        schema:
+          type: integer
+
+    get:
+      tags: [Series]
+      summary: Get a series by ID
+      responses:
+        '200':
+          description: A single series
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '404':
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags: [Series]
+      summary: Update a series
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeriesInput'
+      responses:
+        '200':
+          description: Series updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Series]
+      summary: Delete a series
+      responses:
+        '204':
+          description: Series deleted successfully (no body)
+        '404':
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /series/{id}/rating:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Series ID
+        schema:
+          type: integer
+
+    get:
+      tags: [Ratings]
+      summary: Get average rating for a series
+      responses:
+        '200':
+          description: Rating summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatingSummary'
+        '404':
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags: [Ratings]
+      summary: Submit a rating for a series
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  example: 8
+      responses:
+        '201':
+          description: Rating submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        '400':
+          description: Invalid score
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+
+    Series:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Breaking Bad
+        genre:
+          type: string
+          nullable: true
+          example: Drama
+        status:
+          type: string
+          nullable: true
+          enum: [watching, completed, dropped, planned]
+          example: completed
+        rating:
+          type: number
+          format: float
+          nullable: true
+          minimum: 0
+          maximum: 10
+          example: 9.5
+        image_url:
+          type: string
+          nullable: true
+          example: /uploads/1234567890.jpg
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SeriesInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          example: Breaking Bad
+        genre:
+          type: string
+          example: Drama
+        status:
+          type: string
+          enum: [watching, completed, dropped, planned]
+          example: watching
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10
+          example: 9.5
+        image:
+          type: string
+          format: binary
+          description: Cover image (JPEG, PNG, WebP or GIF, max 1MB)
+
+    SeriesList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 42
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 10
+            pages:
+              type: integer
+              example: 5
+
+    Rating:
+      type: object
+      properties:
+        id:
+          type: integer
+        series_id:
+          type: integer
+        score:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    RatingSummary:
+      type: object
+      properties:
+        series_id:
+          type: integer
+        count:
+          type: integer
+        average:
+          type: number
+          format: float
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Series not found
