@@ -1,6 +1,22 @@
 const pool = require('../db');
 
 const SORTABLE_FIELDS = ['title', 'genre', 'status', 'rating', 'created_at'];
+const BASE_URL = (process.env.BASE_URL || '').replace(/\/$/, '');
+
+function buildImageUrl(imageUrl) {
+  if (!imageUrl) return null;
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
+
+  const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  return BASE_URL ? `${BASE_URL}${path}` : path;
+}
+
+function formatSeries(series) {
+  return {
+    ...series,
+    image_url: buildImageUrl(series.image_url)
+  };
+}
 
 // GET /series?page=1&limit=10&q=breaking&sort=title&order=asc
 exports.getAll = async (req, res) => {
@@ -24,7 +40,7 @@ exports.getAll = async (req, res) => {
     );
 
     res.json({
-      data: dataRes.rows,
+      data: dataRes.rows.map(formatSeries),
       meta: { total, page, limit, pages: Math.ceil(total / limit) }
     });
   } catch (err) {
@@ -38,7 +54,7 @@ exports.getById = async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM series WHERE id = $1', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Series not found' });
-    res.json(rows[0]);
+    res.json(formatSeries(rows[0]));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -56,7 +72,7 @@ exports.create = async (req, res) => {
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [title.trim(), genre || null, status || null, rating || null, image_url]
     );
-    res.status(201).json(rows[0]);
+    res.status(201).json(formatSeries(rows[0]));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -81,7 +97,7 @@ exports.update = async (req, res) => {
        RETURNING *`,
       [title.trim(), genre || null, status || null, rating || null, image_url, req.params.id]
     );
-    res.json(rows[0]);
+    res.json(formatSeries(rows[0]));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

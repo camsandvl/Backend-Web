@@ -63,6 +63,7 @@ Swagger UI → `http://localhost:3000/docs`
 |----------------|-------------------------------|---------------------------------------------------|
 | `PORT`         | Port the server listens on    | `3000`                                            |
 | `DATABASE_URL` | PostgreSQL connection string  | `postgresql://postgres:pass@localhost:5432/series_db` |
+| `BASE_URL`     | Public backend base URL used to build image URLs | `https://your-backend.onrender.com` |
 
 ---
 

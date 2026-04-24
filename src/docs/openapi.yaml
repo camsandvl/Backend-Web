@@ -252,7 +252,7 @@ components:
         image_url:
           type: string
           nullable: true
-          example: /uploads/1234567890.jpg
+          example: https://your-backend.onrender.com/uploads/1234567890.jpg
         created_at:
           type: string
           format: date-time
