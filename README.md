@@ -5,7 +5,7 @@
 > API REST para gestionar un tracker personal de series. Desarrollado con Node.js, Express y PostgreSQL.
 
 🔗 **Repositorio Frontend**: [https://github.com/camsandvl/Frontend-Web](https://github.com/camsandvl/Frontend-Web)
-🌐 **API en producción**: [https://backend-web-7aqu.onrender.com/series](https://backend-web-7aqu.onrender.com/series)
+🌐 **API en producción**: [https://backend-web-7aqu.onrender.com/](https://backend-web-7aqu.onrender.com/)
 📖 **Swagger UI**: [https://backend-web-7aqu.onrender.com/docs/](https://backend-web-7aqu.onrender.com/docs/)
 
 ---
