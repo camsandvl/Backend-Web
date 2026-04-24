@@ -31,6 +31,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.get('/docs/spec', (req, res) => res.json(swaggerDoc));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => res.json({ message: 'API is running V2' }));
 app.use('/series', seriesRoutes);
 
 // ── 404 fallback ──────────────────────────────────────────────────────────────
