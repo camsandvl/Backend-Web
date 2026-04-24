@@ -10,7 +10,7 @@
 
 ## Screenshot
 
-
+![Swagger UI](./screenshots/SwaggerUI.png)
 
 ---
 
