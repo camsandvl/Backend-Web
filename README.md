@@ -62,6 +62,7 @@ Swagger UI → `http://localhost:3000/docs`
 | Variable       | Description                   | Example                                           |
 |----------------|-------------------------------|---------------------------------------------------|
 | `PORT`         | Port the server listens on    | `3000`                                            |
+| `NODE_ENV`     | Enables production behavior (DB SSL on `production`) | `production` |
 | `DATABASE_URL` | PostgreSQL connection string  | `postgresql://postgres:pass@localhost:5432/series_db` |
 | `BASE_URL`     | Public backend base URL used to build image URLs | `https://your-backend.onrender.com` |
 
