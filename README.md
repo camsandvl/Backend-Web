@@ -10,7 +10,7 @@
 
 ## Screenshot
 
-_Add a screenshot of Swagger UI or a working API response here_
+
 
 ---
 
